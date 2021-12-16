@@ -1,1 +1,0 @@
-add_library(disk disk.cpp)
