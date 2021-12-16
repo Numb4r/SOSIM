@@ -6,3 +6,4 @@ int Escalonador::getProcessCountMax(){
     return this->processCountMax;
 }
 int Escalonador::getPc(){return pc;}
+Escalonador::Escalonador(){}
