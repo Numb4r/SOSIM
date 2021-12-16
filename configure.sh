@@ -1,3 +1,3 @@
 #! /bin/sh
 
-cmake -S . -B build
+cmake -S core -B build
