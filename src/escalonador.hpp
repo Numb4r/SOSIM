@@ -6,7 +6,13 @@ struct process{
     int quantum;
     process(int pid,int timestamp): pid(pid),timestamp(timestamp),quantum(0){}
 };
-
+enum states{
+    criados ,
+    pronto,
+    execução,
+    bloqueado,
+    finalizados
+};
 
 class Escalonador{
         int processCountMax;
