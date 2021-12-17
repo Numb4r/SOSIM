@@ -7,5 +7,5 @@ class RAM{
     // std::map<int,>
     public:
     RAM(const int memMax);
-    RAM();
+    // RAM();
 };
