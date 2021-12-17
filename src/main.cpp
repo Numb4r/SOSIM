@@ -1,24 +1,11 @@
-#include <stdio.h>
-#include "json.hpp"
-#include "fileIO.hpp"
-#include <iostream>
 #include "kernel.hpp"
+#include "shell.hpp"
 
-int main(const int argc,char* argv []){
-    Kernel kernel;
-    
-    
-    // try{
-    //     auto b = FileIO();
-    //     nlohmann::json j =b.readJson(argv[1]);
-        
-    //     std::string a = j["a"];
-    //     std::cout<<j["a"];
-
-
-    // }catch(std::exception e){
-    //     printf("HELLO");
-    // }
+int main(const int argc,char** argv ){
+    Kernel kernel(argv[1]);
+    Shell shell(&kernel);
+    shell.input();
+   
 
     return 0;
 }
