@@ -19,15 +19,17 @@ void Kernel::executeSystem() {
     this->escalonador.createProcess(cycles);
 
     this->ps = this->escalonador.getNextProcess(cycles);
-    if (!ps) {
-      // ps->makeCycle();
+
+    printf("\n[%d]:", cycles);
+    if (ps) {
+      ps->makeCycle();
+      printf("%d q:%d ts:%d cycles:%d", ps->getPID(), ps->getQuantum(),
+             ps->getTimestamp(), ps->getCycles());
+    } else if (this->escalonador.isListEmpty()) {
       this->isRunning = false;
       break;
     }
-    printf("[%d]:", cycles);
-    ps->makeCycle();
-    printf("%d q:%d ts:%d cycles:%d\n", ps->getPID(), ps->getQuantum(),
-           ps->getTimestamp(), ps->getCycles());
+
     cycles++;
   }
   // for (auto &&i : this->escalonador.deadProcess) {
