@@ -1,7 +1,30 @@
 {
     "processCount": 3,
-    "process":[
-        {},{},{}
+    "interval": 3,
+    "process": [
+        {
+            "cycles": 3,
+            "queueResources": [
+                "cpu",
+                "cpu",
+                "cpu"
+            ]
+        },
+        {
+            "cycles": 4,
+            "queueResources": [
+                "cpu",
+                "ram",
+                "disk",
+                "ram"
+            ]
+        },
+        {
+            "cycles": 2,
+            "queueResources": [
+                "ram",
+                "cpu"
+            ]
+        }
     ]
-    
 }
