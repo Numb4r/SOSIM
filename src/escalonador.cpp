@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <queue>
+#include <vector>
 Escalonador::Escalonador(int processCountMax, const int intervalCreation)
     : processCountMax(processCountMax), intervalCreation(intervalCreation),
       pc(0) {
@@ -44,6 +45,21 @@ void Escalonador::createProcess(const int cycles) {
 
     this->pc++;
   }
+}
+
+// TODO : TA BUGADO (Y)
+void Escalonador::resetEscalonador(const int pc, const int it) {
+  this->processCountMax = pc;
+  this->pc = 0;
+  this->intervalCreation = it;
+  lastPID = 0;
+  cyclesQuantum = 0;
+  std::queue<Process> emptyQ;
+  std::vector<Process> emptyV;
+  std::list<Process> emptyL;
+  std::swap(this->queueProcess, emptyQ);
+  std::swap(this->listProcess, emptyL);
+  std::swap(this->deadProcess, emptyV);
 }
 Process *Escalonador::getNextProcess(int cycles) {
   // TODO: REESCREVER A LOGICA DO ESCALONADOR MUITO CONFUSA

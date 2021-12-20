@@ -21,6 +21,7 @@ public:
   Escalonador();
   int getProcessCountMax();
   int getPc();
+  void resetEscalonador(const int pc, const int it);
   Process nextProcess();
 
   void addProcessToList(nlohmann::basic_json<> processInfo);
