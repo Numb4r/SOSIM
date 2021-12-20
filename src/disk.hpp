@@ -1,4 +1,5 @@
 #pragma once
-class Disk{
-
+class Disk {
+public:
+  void reset();
 };
