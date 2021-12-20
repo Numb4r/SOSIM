@@ -17,6 +17,7 @@ class Kernel {
   CPU cpu;
   RAM ram;
   Disk disk;
+  std::string fileLoadPs;
   Escalonador escalonador;
   bool isRunning;
   Process *ps;
@@ -25,4 +26,5 @@ public:
   Kernel(const char *fileProcessPath);
   void executeSystem();
   void stopSystem();
+  void reboot();
 };
