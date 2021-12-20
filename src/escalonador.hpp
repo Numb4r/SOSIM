@@ -27,4 +27,5 @@ public:
   void createProcess(const int cycles);
   Process *getNextProcess(int cycles);
   bool isQueueEmpty();
+  bool isListEmpty();
 };

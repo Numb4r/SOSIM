@@ -10,6 +10,7 @@ Escalonador::Escalonador(int processCountMax, const int intervalCreation)
 }
 Escalonador::Escalonador() {}
 bool Escalonador::isQueueEmpty() { return this->queueProcess.empty(); }
+bool Escalonador::isListEmpty() { return this->listProcess.empty(); }
 int Escalonador::getProcessCountMax() { return this->processCountMax; }
 int Escalonador::getPc() { return pc; }
 void Escalonador::addProcessToList(nlohmann::basic_json<> processInfo) {
@@ -45,8 +46,9 @@ void Escalonador::createProcess(const int cycles) {
   }
 }
 Process *Escalonador::getNextProcess(int cycles) {
-
-  if (this->queueProcess.front().isTerminated()) {
+  // TODO: REESCREVER A LOGICA DO ESCALONADOR MUITO CONFUSA
+  if (!this->queueProcess.empty() &&
+      this->queueProcess.front().isTerminated()) {
     cyclesQuantum = cycles;
     this->queueProcess.front().changeState(states::finalizado);
     this->deadProcess.push_back(this->queueProcess.front());
@@ -55,8 +57,11 @@ Process *Escalonador::getNextProcess(int cycles) {
       return nullptr;
     else
       return &this->queueProcess.front();
-  } else if (cycles - cyclesQuantum < this->queueProcess.front().getQuantum() ||
-             cycles == 0) {
+
+  } else if (!this->queueProcess.empty() &&
+             (cycles - cyclesQuantum <
+                  this->queueProcess.front().getQuantum() ||
+              cycles == 0)) {
     this->queueProcess.front().changeState(states::execucao);
     return &this->queueProcess.front();
   } else {
