@@ -14,6 +14,7 @@ class Process {
 
 public:
   Process(int cycles, std::queue<resources> queueResources);
+  Process() = default;
 
   void setPID(const int pid);
   void changeState(enum ::states state);
