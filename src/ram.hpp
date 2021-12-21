@@ -4,9 +4,10 @@
 #include <vector>
 class block {
 public:
+  int address;
   Process ps;
   Process operator->() { return ps; }
-  block(Process ps) : ps(ps) {}
+  block(int address, Process ps) : address(address), ps(ps) {}
 };
 class RAM {
   int memSize;
@@ -17,4 +18,5 @@ public:
   RAM(const int memSize);
   RAM() = default;
   std::string snapshot();
+  void loadPs(Process ps);
 };
