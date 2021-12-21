@@ -4,9 +4,10 @@
 #include <vector>
 class core {
 public:
+  int ncore;
   Process ps;
   Process operator->() { return ps; }
-  core(Process ps) : ps(ps) {}
+  core(int core, Process ps) : ps(ps), ncore(core) {}
 };
 class CPU {
   short numCores;
@@ -17,4 +18,5 @@ public:
   CPU() = default;
   std::string snapshot();
   void reset();
+  void loadPs(Process ps);
 };
