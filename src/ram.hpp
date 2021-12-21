@@ -1,12 +1,20 @@
 #pragma once
-#include <map>
-
+#include "process.hpp"
+#include <string>
+#include <vector>
+class block {
+public:
+  Process ps;
+  Process operator->() { return ps; }
+  block(Process ps) : ps(ps) {}
+};
 class RAM {
-  const int memMAX;
+  int memSize;
+  std::vector<block> memory;
 
-  // std::map<int,>
 public:
   void reset();
-  RAM(const int memMax);
-  RAM();
+  RAM(const int memSize);
+  RAM() = default;
+  std::string snapshot();
 };
