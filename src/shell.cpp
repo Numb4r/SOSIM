@@ -1,4 +1,5 @@
 #include "shell.hpp"
+#include "json.hpp"
 #include <functional>
 #include <iostream>
 #include <stdio.h>
@@ -22,31 +23,31 @@ void Shell::help() {
          "mesmo para o estado inicial, em que os processos estariam ainda em "
          "faze de criação inicial.\n");
 }
-void Shell::meminfo() {}
-void Shell::cpuinfo() {}
+void Shell::meminfo() { nlohmann::json j = json::parse(kernel->ssMemory()); }
+void Shell::cpuinfo() { nlohmann::json j = json::parse(kernel->ssCPU()); }
 void Shell::queueschell() {}
 void Shell::execute() { this->kernel->executeSystem(); }
 void Shell::kill() { this->kernel->reboot(); }
-void Shell::input() {
+void Shell::loop() {
   while (true) {
 
-    std::string readline;
+    char readline[256];
     printf("~$ ");
-    std::cin >> readline;
-    if (std::strcmp(readline.c_str(), "help") == 0) {
+    std::cin.getline(readline, 256);
+    if (std::strcmp(readline, "help") == 0) {
       help();
-    } else if (std::strcmp(readline.c_str(), "meminfo") == 0) {
+    } else if (std::strcmp(readline, "meminfo") == 0) {
       meminfo();
-    } else if (std::strcmp(readline.c_str(), "cpuinfo") == 0) {
+    } else if (std::strcmp(readline, "cpuinfo") == 0) {
       cpuinfo();
-    } else if (std::strcmp(readline.c_str(), "queueschell") == 0) {
+    } else if (std::strcmp(readline, "queueschell") == 0) {
       queueschell();
-    } else if (std::strcmp(readline.c_str(), "execute") == 0) {
+    } else if (std::strcmp(readline, "execute") == 0) {
       execute();
-    } else if (std::strcmp(readline.c_str(), "kill") == 0) {
+    } else if (std::strcmp(readline, "kill -9") == 0) {
       kill();
     } else {
-      printf("bash: %s : Comando nao encontrado\n", readline.c_str());
+      printf("bash: %s : Comando nao encontrado\n", readline);
     }
   }
 }

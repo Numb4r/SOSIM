@@ -20,5 +20,5 @@ class Shell {
                // ainda em faze de criação inicial.
 public:
   Shell(Kernel *kernel);
-  void input();
+  void loop();
 };
