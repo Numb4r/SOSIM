@@ -1,11 +1,20 @@
 #pragma once
 #include "process.hpp"
-#include <list>
+#include <string>
+#include <vector>
+class core {
+public:
+  Process ps;
+  Process operator->() { return ps; }
+  core(Process ps) : ps(ps) {}
+};
 class CPU {
-  const short numCores;
-  std::list<Process> cores;
+  short numCores;
 
 public:
+  std::vector<core> cores;
   CPU(const short numCores);
+  CPU() = default;
+  std::string snapshot();
   void reset();
 };
