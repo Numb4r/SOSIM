@@ -1,6 +1,6 @@
 {
     "processCount": 3,
-    "interval": 3,
+    "interval": 10,
     "process": [
         {
             "cycles": 3,
