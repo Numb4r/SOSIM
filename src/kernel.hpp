@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <vector>
 #define NUMCORES 1
 #define RAMMAX 5
 #define DISKSPACE 10
@@ -23,8 +24,10 @@ class Kernel {
   Process *ps;
 
 public:
-  Kernel(const char *fileProcessPath);
+  Kernel(const char *fileHardwarePath, const char *fileProcessPath);
   void executeSystem();
   void stopSystem();
+  std::string ssCPU();
+  std::string ssMemory();
   void reboot();
 };
