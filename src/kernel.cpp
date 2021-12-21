@@ -31,7 +31,6 @@ void Kernel::reboot() {
   const int it = j["interval"];
 
   this->escalonador.resetEscalonador(pc, it);
-  printf("%d %d", pc, it);
   for (auto &&i : j["process"]) {
     escalonador.addProcessToList(i);
   }
