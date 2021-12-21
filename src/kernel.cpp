@@ -56,3 +56,24 @@ void Kernel::executeSystem() {
     cycles++;
   }
 }
+void Kernel::benchmarkCPU() {
+  for (int i = 0; i < 99; i++) {
+    Process ps;
+    ps.setPID(i);
+    ps.setQuantum(i);
+    ps.changePriority(priorities::medium);
+
+    this->cpu.loadPs(ps);
+  }
+}
+
+void Kernel::benchmarkRAM() {
+  for (int i = 0; i < 99; i++) {
+    Process ps;
+    ps.setPID(i);
+    ps.setQuantum(i + 1);
+    ps.changePriority(priorities::medium);
+
+    this->ram.loadPs(ps);
+  }
+}
