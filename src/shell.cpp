@@ -83,6 +83,7 @@ void Shell::cpubench() { this->kernel->benchmarkCPU(); }
 void Shell::membench() { this->kernel->benchmarkRAM(); }
 void Shell::kill() {
   // this->kernel->reboot();
+  exit(0);
 }
 void Shell::loop() {
   while (true) {
