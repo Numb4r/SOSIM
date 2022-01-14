@@ -16,8 +16,6 @@ void Shell::help() {
          "sistema\n");
   printf("execute:\tExecuta a fila de processos definida\n");
   printf("kill -9:\tFinaliza a execução do sistema operacional\n");
-  printf("membench:\tExecuta um full load na RAM para fins de teste\n");
-  printf("cpubench:\tExecuta um full load no CPU para fins de teste\n");
 }
 void Shell::meminfo() {
   nlohmann::json j = json::parse(kernel->ssMemory());
@@ -79,8 +77,6 @@ void Shell::cpuinfo() {
 }
 void Shell::queueschell() {}
 void Shell::execute() { this->kernel->executeSystem(); }
-void Shell::cpubench() { this->kernel->benchmarkCPU(); }
-void Shell::membench() { this->kernel->benchmarkRAM(); }
 void Shell::kill() {
   // this->kernel->reboot();
   exit(0);
@@ -103,10 +99,6 @@ void Shell::loop() {
       execute();
     } else if (std::strcmp(readline, "kill -9") == 0) {
       kill();
-    } else if (std::strcmp(readline, "cpubench") == 0) {
-      this->cpubench();
-    } else if (std::strcmp(readline, "membench") == 0) {
-      this->membench();
     } else {
       printf("bash: %s : Comando nao encontrado\n", readline);
     }

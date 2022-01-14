@@ -22,6 +22,4 @@ public:
   std::string ssCPU();
   std::string ssMemory();
   void reboot();
-  void benchmarkCPU();
-  void benchmarkRAM();
 };

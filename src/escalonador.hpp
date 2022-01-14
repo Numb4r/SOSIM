@@ -3,8 +3,11 @@
 #include "process.hpp"
 #include <list>
 #include <queue>
+#include <utility>
 #define QUANTUMMAX 3
 #include <vector>
+#include <map>
+#include <string>
 class Escalonador {
   int processCountMax;
   int pc;
@@ -14,6 +17,11 @@ class Escalonador {
   // execucao
   std::queue<Process> queueProcess;
   int intervalCreation;
+  std::map<std::string,enum resources> translateToEnum={
+    std::make_pair("cpu-bound", resources::cpu),
+    std::make_pair("memory-bound", resources::ram),
+    std::make_pair("io-bound", resources::disk)
+  };
 
 public:
   std::vector<Process> deadProcess;

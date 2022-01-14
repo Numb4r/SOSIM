@@ -1,9 +1,11 @@
 #include "escalonador.hpp"
+#include "process.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <queue>
 #include <vector>
+#include <map>
 Escalonador::Escalonador(int processCountMax, const int intervalCreation)
     : processCountMax(processCountMax), intervalCreation(intervalCreation),
       pc(0) {
@@ -15,18 +17,21 @@ bool Escalonador::isListEmpty() { return this->listProcess.empty(); }
 int Escalonador::getProcessCountMax() { return this->processCountMax; }
 int Escalonador::getPc() { return pc; }
 void Escalonador::addProcessToList(nlohmann::basic_json<> processInfo) {
-  std::queue<resources> resources;
-  int cycles = processInfo["cycles"];
-  for (int i = 0; i < cycles; i++) {
-    std::string rs = processInfo["queueResources"][i];
-    if (strcmp(rs.c_str(), "cpu") == 0)
-      resources.push(resources::cpu);
-    else if (strcmp(rs.c_str(), "ram") == 0)
-      resources.push(resources::ram);
-    else if (strcmp(rs.c_str(), "disk") == 0)
-      resources.push(resources::disk);
-  }
-  this->listProcess.push_back(Process(cycles, resources));
+      int processo = processInfo["processo"];
+      int ciclos = processInfo["ciclos"];
+      int max_quantum = processInfo["max_quantum"];
+      enum resources init_type = this->translateToEnum.at(processInfo["init_type"]);
+      enum priorities prioridade = processInfo["prioridade"];
+      int timestamp =  processInfo["timestamp"];
+  this->listProcess.push_back(
+    Process(
+      processo,
+      ciclos,
+      max_quantum,
+      init_type,
+      prioridade,
+      timestamp
+      ));
 }
 
 static int lastPID = 0;
@@ -37,12 +42,8 @@ void Escalonador::createProcess(const int cycles) {
       return;
     Process ps = listProcess.front();
     listProcess.pop_front();
-    ps.setPID(lastPID);
-    lastPID++;
-    ps.setQuantum(QUANTUMMAX);
     ps.changeState(states::criado);
     queueProcess.push(ps);
-
     this->pc++;
   }
 }
@@ -61,6 +62,9 @@ void Escalonador::resetEscalonador(const int pc, const int it) {
   std::swap(this->listProcess, emptyL);
   std::swap(this->deadProcess, emptyV);
 }
+
+// TODO: REESCREVER POLITICA EM OUTRA CLASSE
+// REALIZAR POLIMORFISMO PARA ISSO
 Process *Escalonador::getNextProcess(int cycles) {
   // TODO: REESCREVER A LOGICA DO ESCALONADOR MUITO CONFUSA
   if (!this->queueProcess.empty() &&

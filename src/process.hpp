@@ -8,18 +8,18 @@ class Process {
   int timestamp;
   int quantum;
   int cycles;
-  std::queue<resources> queueResources;
+  int maxQuantum;
+  resources initBound;
   enum ::priorities priority;
   enum ::states state;
 
 public:
-  Process(int cycles, std::queue<resources> queueResources);
+  Process(const int pid,const int cycles,const int maxQuantum,enum resources initBound, enum priorities priority);
+  Process(const int pid,const int cycles,const int maxQuantum,enum resources initBound, enum priorities priority,const int timestamp);
   Process() = default;
 
-  void setPID(const int pid);
   void changeState(enum ::states state);
   void changePriority(const enum ::priorities priority);
-  void setQuantum(const int quantum);
   void makeCycle();
 
   int getPID() const;
