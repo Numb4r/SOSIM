@@ -14,8 +14,11 @@ class Process {
   enum ::states state;
 
 public:
-  Process(const int pid,const int cycles,const int maxQuantum,enum resources initBound, enum priorities priority);
-  Process(const int pid,const int cycles,const int maxQuantum,enum resources initBound, enum priorities priority,const int timestamp);
+  Process(const int pid, const int cycles, const int maxQuantum,
+          enum resources initBound, enum priorities priority);
+  Process(const int pid, const int cycles, const int maxQuantum,
+          enum resources initBound, enum priorities priority,
+          const int timestamp);
   Process() = default;
 
   void changeState(enum ::states state);

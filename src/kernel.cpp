@@ -3,14 +3,17 @@
 #include "json.hpp"
 #include "process.hpp"
 #include <iostream>
-Kernel::Kernel(const char *fileHardwarePath, const char *fileProcessPath)
+Kernel::Kernel(const char *fileConfig, const char *fileProcessPath)
     : isRunning(false), fileLoadPs(fileProcessPath) {
 
-  nlohmann::json hrd = Bootloader().boot(fileHardwarePath);
-  this->cpu = CPU(hrd["cores"]);
-  this->ram = RAM(hrd["memsize"]);
+  nlohmann::json config = Bootloader().boot(fileConfig);
+  this->cpu = CPU(config["cores"]);
+  this->ram = RAM(config["memsize"]);
+  this->escalonador = Escalonador(config["policy"]);
   nlohmann::json ps = Bootloader().boot(fileProcessPath);
-  for (auto &&i : ps) {escalonador.addProcessToList(i);}
+  for (auto &&i : ps) {
+    this->addProcessToList(i);
+  }
 }
 std::string Kernel::ssCPU() { return this->cpu.snapshot(); }
 std::string Kernel::ssMemory() { return this->ram.snapshot(); }
@@ -21,33 +24,23 @@ void Kernel::reboot() {
   this->ram.reset();
   this->disk = Disk();
   nlohmann::json j = Bootloader().boot(fileLoadPs.c_str());
-
-  const int pc = j["processCount"];
-  const int it = j["interval"];
-
-  this->escalonador.resetEscalonador(pc, it);
-  for (auto &&i : j["process"]) {
-    escalonador.addProcessToList(i);
-  }
 }
+void Kernel::addProcessToList(nlohmann::basic_json<> processInfo) {
+  int processo = processInfo["processo"];
+  int ciclos = processInfo["ciclos"];
+  int max_quantum = processInfo["max_quantum"];
+  enum resources init_type = this->translateToEnum.at(processInfo["init_type"]);
+  enum priorities prioridade = processInfo["prioridade"];
+  int timestamp = processInfo["timestamp"];
+  this->listProcess.push_back(
+      Process(processo, ciclos, max_quantum, init_type, prioridade, timestamp));
+}
+// TODO: Rescrever para separacao de politica de mecanismo do escalonador
+//  Alem disso, consumir a lista toda em um ciclo, depois repetir ate que o
+//  processo esteja finalizado
 void Kernel::executeSystem() {
-  this->isRunning = true;
-  int cycles = 0;
-  while (this->isRunning) {
-    this->escalonador.createProcess(cycles);
-
-    this->ps = this->escalonador.getNextProcess(cycles);
-
-    printf("\n[%d]:", cycles);
-    if (ps) {
-      ps->makeCycle();
-      printf("%d q:%d ts:%d cycles:%d", ps->getPID(), ps->getQuantum(),
-             ps->getTimestamp(), ps->getCycles());
-    } else if (this->escalonador.isListEmpty()) {
-      this->isRunning = false;
-      break;
-    }
-
-    cycles++;
+  while (!this->listProcess.empty()) {
+    escalonador.applyPolicy(this->listProcess);
+    escalonador.makeCycle(this->listProcess);
   }
 }
