@@ -2,7 +2,10 @@
 #include "cpu.hpp"
 #include "json.hpp"
 #include "process.hpp"
+#include <chrono>
 #include <iostream>
+#include <thread>
+using namespace std::chrono_literals;
 Kernel::Kernel(const char *fileConfig, const char *fileProcessPath)
     : isRunning(false), fileLoadPs(fileProcessPath) {
 
@@ -39,8 +42,12 @@ void Kernel::addProcessToList(nlohmann::basic_json<> processInfo) {
 //  Alem disso, consumir a lista toda em um ciclo, depois repetir ate que o
 //  processo esteja finalizado
 void Kernel::executeSystem() {
-  while (!this->listProcess.empty()) {
-    escalonador.applyPolicy(this->listProcess);
-    escalonador.makeCycle(this->listProcess);
+  for (int i = 0; i < 10; i++) {
+    std::cout << "Seconds: " << i << "\n";
+    std::this_thread::sleep_for(1s);
   }
+  // while (!this->listProcess.empty()) {
+  // escalonador.applyPolicy(this->listProcess);
+  // escalonador.makeCycle(this->listProcess);
+  // }
 }

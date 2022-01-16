@@ -5,6 +5,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
+#include <thread>
 #include <vector>
 Shell::Shell(Kernel *kernel) : kernel(kernel) {}
 
@@ -76,7 +77,13 @@ void Shell::cpuinfo() {
   printf("\n}\n");
 }
 void Shell::queueschell() {}
-void Shell::execute() { this->kernel->executeSystem(); }
+void Shell::execute() {
+  std::thread t1(&Kernel::executeSystem, kernel);
+  if (t1.joinable()) {
+    t1.detach();
+    // t1.join();
+  }
+}
 void Shell::kill() {
   // this->kernel->reboot();
   exit(0);
