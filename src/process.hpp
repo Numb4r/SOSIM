@@ -9,7 +9,7 @@ class Process {
   int quantum;
   int cycles;
   int maxQuantum;
-  resources initBound;
+  resources resourceConsumed;
   enum ::priorities priority;
   enum ::states state;
 
@@ -26,9 +26,13 @@ public:
   void makeCycle();
 
   int getPID() const;
+  enum resources getResourceConsumed() const;
+  void changeResourceConsumed(enum resources rs);
+  void changeResourceConsumed(int rs);
   int getPriority() const;
   int getTimestamp() const;
   int getQuantum() const;
   int getCycles() const;
-  bool isTerminated() const;
+  int getMaxQuantum() const;
+  bool isProcessTerminated() const;
 };
