@@ -1,5 +1,5 @@
 CXX	     := -g++
-CXXFLAGS := 
+CXXFLAGS := -std=c++17 -lpthread -pthread
 LDFLAGS	 := 
 BUILD 	 := ./build
 OBJ_DIR  := $(BUILD)/objects
