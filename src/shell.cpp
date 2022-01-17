@@ -1,6 +1,8 @@
 #include "shell.hpp"
 #include "json.hpp"
 #include <algorithm>
+#include <exception>
+#include <fstream>
 #include <functional>
 #include <iostream>
 #include <stdio.h>
@@ -92,25 +94,31 @@ void Shell::execute() {
 
 void Shell::loop() {
   while (true) {
-    char readline[256];
+    // char readline[256];
+    std::string s;
     printf("~$ ");
-    std::cin.getline(readline, 256);
-    if (std::strcmp(readline, "help") == 0) {
+    try {
+      std::getline(std::cin, s);
+    } catch (std::istream::failure e) {
+      std::cout << "[Error] " << e.what() << "\n";
+    }
+
+    if (std::strcmp(s.c_str(), "help") == 0) {
       help();
-    } else if (std::strcmp(readline, "meminfo") == 0) {
+    } else if (std::strcmp(s.c_str(), "meminfo") == 0) {
       meminfo();
-    } else if (std::strcmp(readline, "cpuinfo") == 0) {
+    } else if (std::strcmp(s.c_str(), "cpuinfo") == 0) {
       cpuinfo();
-    } else if (std::strcmp(readline, "queueschell") == 0) {
+    } else if (std::strcmp(s.c_str(), "queueschell") == 0) {
       queueschell();
-    } else if (std::strcmp(readline, "execute") == 0) {
+    } else if (std::strcmp(s.c_str(), "execute") == 0) {
       execute();
-    } else if (std::strcmp(readline, "kill -9") == 0) {
+    } else if (std::strcmp(s.c_str(), "kill -9") == 0) {
       kill();
-    } else if (std::strcmp(readline, "stop") == 0) {
+    } else if (std::strcmp(s.c_str(), "stop") == 0) {
       stopSystem();
     } else {
-      printf("bash: %s : Comando nao encontrado\n", readline);
+      printf("bash: %s : Comando nao encontrado\n", s.c_str());
     }
   }
 }
