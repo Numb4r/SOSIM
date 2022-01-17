@@ -14,8 +14,8 @@ class Kernel {
   std::string fileLoadPs;
   Escalonador escalonador;
   bool isRunning;
-  Process *ps;
   std::list<Process> listProcess;
+  std::list<Process> finishedProcess;
   std::map<std::string, enum resources> translateToEnum = {
       std::make_pair("cpu-bound", resources::cpu),
       std::make_pair("memory-bound", resources::ram),

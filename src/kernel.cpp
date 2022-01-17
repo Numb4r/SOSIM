@@ -41,12 +41,21 @@ void Kernel::executeSystem() {
   this->isRunning = true;
   printf("Running\n");
   while (this->isRunning) {
-    escalonador.applyPolicy(this->listProcess);
     if (this->listProcess.empty() || this->listProcess.size() <= 0) {
       this->isRunning = false;
       printf("Emtpy list");
     } else {
+      escalonador.applyPolicy(this->listProcess);
       escalonador.makeCycle(this->listProcess);
     }
+    std::vector<Process> arrayP{listProcess.begin(), listProcess.end()};
+    for (unsigned long i = 0; i < arrayP.size(); i++) {
+      if (arrayP.at(i).isProcessTerminated()) {
+        printf("erasing %d", arrayP.at(i).getPID());
+        this->finishedProcess.push_back(arrayP.at(i));
+        arrayP.erase(arrayP.begin() + i);
+      }
+    }
+    listProcess = std::list<Process>{arrayP.begin(), arrayP.end()};
   }
 }
