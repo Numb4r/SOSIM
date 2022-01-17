@@ -5,7 +5,6 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
-using namespace std::chrono_literals;
 Kernel::Kernel(const char *fileConfig, const char *fileProcessPath)
     : isRunning(false), fileLoadPs(fileProcessPath) {
 
@@ -38,16 +37,16 @@ void Kernel::addProcessToList(nlohmann::basic_json<> processInfo) {
   this->listProcess.push_back(
       Process(processo, ciclos, max_quantum, init_type, prioridade, timestamp));
 }
-// TODO: Rescrever para separacao de politica de mecanismo do escalonador
-//  Alem disso, consumir a lista toda em um ciclo, depois repetir ate que o
-//  processo esteja finalizado
 void Kernel::executeSystem() {
-  for (int i = 0; i < 10; i++) {
-    std::cout << "Seconds: " << i << "\n";
-    std::this_thread::sleep_for(1s);
+  this->isRunning = true;
+  printf("Running\n");
+  while (this->isRunning) {
+    escalonador.applyPolicy(this->listProcess);
+    if (this->listProcess.empty() || this->listProcess.size() <= 0) {
+      this->isRunning = false;
+      printf("Emtpy list");
+    } else {
+      escalonador.makeCycle(this->listProcess);
+    }
   }
-  // while (!this->listProcess.empty()) {
-  // escalonador.applyPolicy(this->listProcess);
-  // escalonador.makeCycle(this->listProcess);
-  // }
 }

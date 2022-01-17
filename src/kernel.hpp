@@ -24,6 +24,7 @@ class Kernel {
 public:
   Kernel(const char *fileConfig, const char *fileProcessPath);
   void executeSystem();
+  void isSystemRunning() const;
   void stopSystem();
   void addProcessToList(nlohmann::basic_json<> processInfo);
   std::string ssCPU();
