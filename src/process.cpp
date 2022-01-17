@@ -1,12 +1,12 @@
 #include "process.hpp"
 Process::Process(const int pid, const int cycles, const int maxQuantum,
                  enum resources initBound, enum priorities priority)
-    : pid(pid), cycles(cycles), maxQuantum(maxQuantum),
+    : pid(pid), cycles(cycles), maxQuantum(maxQuantum), quantum(maxQuantum),
       resourceConsumed(initBound), priority(priority), timestamp(0) {}
 Process::Process(const int pid, const int cycles, const int maxQuantum,
                  enum resources initBound, enum priorities priority,
                  const int timestamp)
-    : pid(pid), cycles(cycles), maxQuantum(maxQuantum),
+    : pid(pid), cycles(cycles), maxQuantum(maxQuantum), quantum(maxQuantum),
       resourceConsumed(initBound), priority(priority), timestamp(timestamp) {}
 
 void Process::changeState(enum ::states state) { this->state = state; }
@@ -19,9 +19,16 @@ void Process::changeResourceConsumed(enum resources rs) {
 void Process::changeResourceConsumed(int rs) {
   this->resourceConsumed = static_cast<enum resources>(rs);
 }
-void Process::makeCycle() {
-  if (!this->isProcessTerminated())
-    this->cycles--;
+void Process::makeCycle(const int timestamp, const int quantumReceive) {
+  if (!this->isProcessTerminated()) {
+    this->quantum -= quantumReceive;
+    this->timestamp += timestamp;
+    if (this->quantum == 0) {
+      this->cycles--;
+      quantum = maxQuantum;
+    }
+  }
+
   if (this->cycles <= 0)
     this->state = states::finalizado;
 }

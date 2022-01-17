@@ -23,7 +23,7 @@ public:
 
   void changeState(enum ::states state);
   void changePriority(const enum ::priorities priority);
-  void makeCycle();
+  void makeCycle(const int timestamp, const int quantumReceive);
 
   int getPID() const;
   enum resources getResourceConsumed() const;
