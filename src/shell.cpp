@@ -8,6 +8,10 @@
 #include <thread>
 #include <vector>
 Shell::Shell(Kernel *kernel) : kernel(kernel) {}
+// TODO: Reescrever shell para uma forma mais dinamica, facilitando a criacao de
+// comandos
+void Shell::kill() { exit(0); }
+void Shell::stopSystem() { this->kernel->stopSystem(); }
 
 void Shell::help() {
   printf("help:\tMostra comandos do shell\n");
@@ -17,6 +21,7 @@ void Shell::help() {
          "sistema\n");
   printf("execute:\tExecuta a fila de processos definida\n");
   printf("kill -9:\tFinaliza a execução do sistema operacional\n");
+  printf("stop:\tInterrompe e execucao do sistema");
 }
 void Shell::meminfo() {
   nlohmann::json j = json::parse(kernel->ssMemory());
@@ -84,13 +89,9 @@ void Shell::execute() {
     // t1.join();
   }
 }
-void Shell::kill() {
-  // this->kernel->reboot();
-  exit(0);
-}
+
 void Shell::loop() {
   while (true) {
-
     char readline[256];
     printf("~$ ");
     std::cin.getline(readline, 256);
@@ -106,6 +107,8 @@ void Shell::loop() {
       execute();
     } else if (std::strcmp(readline, "kill -9") == 0) {
       kill();
+    } else if (std::strcmp(readline, "stop") == 0) {
+      stopSystem();
     } else {
       printf("bash: %s : Comando nao encontrado\n", readline);
     }

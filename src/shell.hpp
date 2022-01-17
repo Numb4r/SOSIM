@@ -10,6 +10,7 @@ class Shell {
   void kill();
   void membench();
   void cpubench();
+  void stopSystem();
 
 public:
   Shell(Kernel *kernel);
