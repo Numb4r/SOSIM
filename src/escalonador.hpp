@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 enum schedulerPolicy { FIFO };
-// TODO: List de processos iniciais deve ficar no Kernel, e nao no escalonador
-// Escalonador deve ficar apenas com a parte da politica e mecanismo
+// TODO: Verificar a necessidade de uma lista de arquivos retirados da lista de
+// execucao
 class Escalonador {
   std::list<Process> FIFO(std::vector<Process> &listOfProcess);
   enum schedulerPolicy policy;
@@ -18,13 +18,10 @@ class Escalonador {
       std::make_pair("io-bound", resources::disk)};
 
 public:
-  // std::vector<Process> deadProcess;
-
   Escalonador(enum schedulerPolicy policy);
   Escalonador() = default;
-  // Process nextProcess();
 
   enum schedulerPolicy getPolicy() const;
-  void makeCycle(std::list<Process> &listProcess);
   void applyPolicy(std::list<Process> &listOfProcess);
+  void makeCycle(std::list<Process> &listProcess);
 };
