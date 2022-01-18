@@ -24,6 +24,7 @@ void Shell::help() {
   printf("execute:\tExecuta a fila de processos definida\n");
   printf("kill -9:\tFinaliza a execução do sistema operacional\n");
   printf("stop:\tInterrompe e execucao do sistema");
+  printf("export ps:\t Exporta informacoes sobre os processos");
 }
 void Shell::meminfo() {
   nlohmann::json j = json::parse(kernel->ssMemory());
@@ -91,7 +92,7 @@ void Shell::execute() {
     // t1.join();
   }
 }
-
+void Shell::exportPs() { this->kernel->exportPs(); }
 void Shell::loop() {
   while (true) {
     // char readline[256];
@@ -117,6 +118,8 @@ void Shell::loop() {
       kill();
     } else if (std::strcmp(s.c_str(), "stop") == 0) {
       stopSystem();
+    } else if (std::strcmp(s.c_str(), "export ps") == 0) {
+      exportPs();
     } else {
       printf("bash: %s : Comando nao encontrado\n", s.c_str());
     }

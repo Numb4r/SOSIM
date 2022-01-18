@@ -29,7 +29,7 @@ public:
   enum resources getResourceConsumed() const;
   void changeResourceConsumed(enum resources rs);
   void changeResourceConsumed(int rs);
-  int getPriority() const;
+  enum priorities getPriority() const;
   int getTimestamp() const;
   int getQuantum() const;
   int getCycles() const;

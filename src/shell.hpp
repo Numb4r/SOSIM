@@ -11,6 +11,7 @@ class Shell {
   void membench();
   void cpubench();
   void stopSystem();
+  void exportPs();
 
 public:
   Shell(Kernel *kernel);

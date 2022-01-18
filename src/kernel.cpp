@@ -12,6 +12,7 @@ Kernel::Kernel(const char *fileConfig, const char *fileProcessPath)
   this->cpu = CPU(config["cores"]);
   this->ram = RAM(config["memsize"]);
   this->escalonador = Escalonador(config["policy"]);
+  this->log = Log(config["policy"]);
   nlohmann::json ps = Bootloader().boot(fileProcessPath);
   for (auto &&i : ps) {
     this->addProcessToList(i);
@@ -20,6 +21,7 @@ Kernel::Kernel(const char *fileConfig, const char *fileProcessPath)
 std::string Kernel::ssCPU() { return this->cpu.snapshot(); }
 std::string Kernel::ssMemory() { return this->ram.snapshot(); }
 void Kernel::stopSystem() { this->isRunning = false; }
+void Kernel::exportPs() { log.exportJson(); }
 void Kernel::reboot() {
   this->stopSystem();
   this->cpu.reset();
@@ -46,7 +48,7 @@ void Kernel::executeSystem() {
       printf("Emtpy list");
     } else {
       escalonador.applyPolicy(this->listProcess);
-      escalonador.makeCycle(this->listProcess);
+      escalonador.makeCycle(this->listProcess, this->log);
     }
     std::vector<Process> arrayP{listProcess.begin(), listProcess.end()};
     for (unsigned long i = 0; i < arrayP.size(); i++) {

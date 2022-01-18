@@ -1,4 +1,5 @@
 #pragma once
+#include "Log.hpp"
 #include "bootloader.hpp"
 #include "cpu.hpp"
 #include "disk.hpp"
@@ -6,7 +7,6 @@
 #include "process.hpp"
 #include "ram.hpp"
 #include <queue>
-
 class Kernel {
   CPU cpu;
   RAM ram;
@@ -14,6 +14,7 @@ class Kernel {
   std::string fileLoadPs;
   Escalonador escalonador;
   bool isRunning;
+  Log log;
   std::list<Process> listProcess;
   std::list<Process> finishedProcess;
   std::map<std::string, enum resources> translateToEnum = {
@@ -29,5 +30,6 @@ public:
   void addProcessToList(nlohmann::basic_json<> processInfo);
   std::string ssCPU();
   std::string ssMemory();
+  void exportPs();
   void reboot();
 };

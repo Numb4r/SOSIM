@@ -1,4 +1,5 @@
 #pragma once
+#include "Log.hpp"
 #include "json.hpp"
 #include "process.hpp"
 #include <list>
@@ -23,5 +24,5 @@ public:
 
   enum schedulerPolicy getPolicy() const;
   void applyPolicy(std::list<Process> &listOfProcess);
-  void makeCycle(std::list<Process> &listProcess);
+  void makeCycle(std::list<Process> &listProcess, Log &log);
 };

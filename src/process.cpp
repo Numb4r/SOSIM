@@ -38,7 +38,7 @@ enum resources Process::getResourceConsumed() const {
 int Process::getPID() const { return this->pid; }
 int Process::getQuantum() const { return this->quantum; }
 int Process::getMaxQuantum() const { return this->maxQuantum; }
-int Process::getPriority() const { return this->priority; }
+enum priorities Process::getPriority() const { return this->priority; }
 int Process::getTimestamp() const { return this->timestamp; }
 int Process::getCycles() const { return this->cycles; }
 bool Process::isProcessTerminated() const {

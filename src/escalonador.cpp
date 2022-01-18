@@ -21,23 +21,25 @@ void Escalonador::applyPolicy(std::list<Process> &listOfProcess) {
 }
 // TODO: Consumir timestamp. Verificar se o uso do Quantum esta de forma correta
 // TODO: Criar classe/funcao de Log para fazer output em um json
-void Escalonador::makeCycle(std::list<Process> &listProcess) {
+void Escalonador::makeCycle(std::list<Process> &listProcess, Log &log) {
   printf("Making cycle\n");
   int seconds{};
+  int secondsIO{};
   int timestamp{};
   for (Process &ps : listProcess) {
     if (!ps.isProcessTerminated()) {
       printf("Consumindo ");
+      secondsIO = 0;
       if (ps.getResourceConsumed() == resources::ram ||
           ps.getResourceConsumed() == resources::disk) {
         ps.changeState(states::bloqueado);
-        seconds = rand() % 4 + 1;
+        secondsIO = rand() % 4 + 1;
         printf("%s stopping for %d seconds\n",
                (ps.getResourceConsumed() == resources::ram ? "ram" : "disk"),
-               seconds);
-        std::this_thread::sleep_for(std::chrono::seconds(seconds));
+               secondsIO);
+        std::this_thread::sleep_for(std::chrono::seconds(secondsIO));
         ps.changeState(states::pronto);
-        timestamp += seconds;
+        timestamp += secondsIO;
       } else {
         printf("cpu\n");
       }
@@ -54,6 +56,9 @@ void Escalonador::makeCycle(std::list<Process> &listProcess) {
           ps.getCycles());
       std::this_thread::sleep_for(std::chrono::seconds(seconds));
       ps.changeState(states::pronto);
+      log.addLog(ps.getPID(),
+                 {timestamp, (seconds + secondsIO), ps.getCycles(), seconds,
+                  ps.getResourceConsumed(), ps.getPriority()});
       ps.changeResourceConsumed((rand() % 3));
       ps.makeCycle(timestamp, seconds);
     }
