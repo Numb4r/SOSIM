@@ -93,7 +93,7 @@ public:
       }
     }
     ss << "}";
-    printf("%s", ss.str().c_str());
+    // printf("%s", ss.str().c_str());
     std::stringstream nameFile;
     nameFile << tPolicy.at(policy) << ".json";
     FileIO::createJson(nameFile.str(), ss.str());
