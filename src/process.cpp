@@ -26,6 +26,7 @@ void Process::makeCycle(const int timestamp, const int quantumReceive) {
     if (this->quantum == 0) {
       this->cycles--;
       quantum = maxQuantum;
+      this->decreasePriority();
     }
   }
 
@@ -43,4 +44,7 @@ int Process::getTimestamp() const { return this->timestamp; }
 int Process::getCycles() const { return this->cycles; }
 bool Process::isProcessTerminated() const {
   return this->state == states::finalizado;
+}
+void Process::decreasePriority(){
+  this->priority = static_cast<priorities>((this->priority > 0 ? this->priority-1 : 0 ));
 }

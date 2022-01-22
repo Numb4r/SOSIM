@@ -1,7 +1,7 @@
 #pragma once
 #include <queue>
 enum states { criado, pronto, execucao, bloqueado, finalizado };
-enum priorities { realtime, high, medium, low, zero };
+enum priorities { zero, low, medium, high, realtime };
 enum resources { cpu, ram, disk };
 class Process {
   int pid;
@@ -35,4 +35,5 @@ public:
   int getCycles() const;
   int getMaxQuantum() const;
   bool isProcessTerminated() const;
+  void decreasePriority();
 };
