@@ -17,6 +17,9 @@ void Escalonador::applyPolicy(std::list<Process> &listOfProcess) {
   case schedulerPolicy::FIFO:
     listOfProcess = this->FIFO(arrayP);
     break;
+  case schedulerPolicy::LRU:
+    listOfProcess = this->LRU(arrayP);
+    break;
   }
 }
 // TODO: Consumir timestamp. Verificar se o uso do Quantum esta de forma correta
@@ -70,4 +73,11 @@ void Escalonador::makeCycle(std::list<Process> &listProcess, Log &log) {
 std::list<Process> Escalonador::FIFO(std::vector<Process> &listOfProcess) {
   return std::list<Process>{std::make_move_iterator(listOfProcess.begin()),
                             std::make_move_iterator(listOfProcess.end())};
+}
+// Sort de acordo com o com menor numero de ciclos
+std::list<Process> Escalonador::LRU(std::vector<Process> &listOfProcess){
+  std::sort(listOfProcess.begin(),listOfProcess.end(),[](Process a,Process b){
+     return  a.getCycles() < b.getCycles();
+  });
+  return std::list<Process>{listOfProcess.begin(),listOfProcess.end()};
 }

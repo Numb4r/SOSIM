@@ -7,11 +7,12 @@
 #include <queue>
 #include <string>
 #include <vector>
-enum schedulerPolicy { FIFO };
+enum schedulerPolicy { FIFO, LRU };
 // TODO: Verificar a necessidade de uma lista de arquivos retirados da lista de
 // execucao
 class Escalonador {
   std::list<Process> FIFO(std::vector<Process> &listOfProcess);
+  std::list<Process> LRU(std::vector<Process> &listOfProcess);
   enum schedulerPolicy policy;
   std::map<std::string, enum resources> translateToEnum = {
       std::make_pair("cpu-bound", resources::cpu),
