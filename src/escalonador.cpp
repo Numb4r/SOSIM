@@ -20,6 +20,9 @@ void Escalonador::applyPolicy(std::list<Process> &listOfProcess) {
   case schedulerPolicy::LRU:
     listOfProcess = this->LRU(arrayP);
     break;
+  case schedulerPolicy::MLQ:
+    listOfProcess = this->MLQ(arrayP);
+    break;
   }
 }
 // TODO: Consumir timestamp. Verificar se o uso do Quantum esta de forma correta
@@ -80,4 +83,16 @@ std::list<Process> Escalonador::LRU(std::vector<Process> &listOfProcess){
      return  a.getCycles() < b.getCycles();
   });
   return std::list<Process>{listOfProcess.begin(),listOfProcess.end()};
+}
+//TODO: Implementar loteria
+std::list<Process> Escalonador::MLQ(std::vector<Process> &listOfProcess){
+  std::vector<std::list<Process>> Ml ={{}, {}, {},{},{},{}};
+  for(auto &&i:listOfProcess){
+    Ml.at(i.getPriority()).push_back(i);
+  }
+  std::list<Process> mergedList;
+  std::for_each(Ml.rbegin(),Ml.rend(),[&mergedList](std::list<Process> list) mutable {
+      mergedList.splice(mergedList.end(),list,list.begin(),list.end());
+  });
+  return mergedList;
 }
