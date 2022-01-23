@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iostream> //TODO: Retirar prints de debug
 #include <thread>
+#include <random>
 
 Escalonador::Escalonador(enum schedulerPolicy policy) : policy(policy) {
   srand(policy);
@@ -23,7 +24,11 @@ void Escalonador::applyPolicy(std::list<Process> &listOfProcess) {
   case schedulerPolicy::MLQ:
     listOfProcess = this->MLQ(arrayP);
     break;
+  case schedulerPolicy::PSLS:
+    listOfProcess = this->PSLS(arrayP);
+    break;
   }
+  
 }
 // TODO: Consumir timestamp. Verificar se o uso do Quantum esta de forma correta
 // TODO: Criar classe/funcao de Log para fazer output em um json
@@ -86,13 +91,28 @@ std::list<Process> Escalonador::LRU(std::vector<Process> &listOfProcess){
 }
 //TODO: Implementar loteria
 std::list<Process> Escalonador::MLQ(std::vector<Process> &listOfProcess){
-  std::vector<std::list<Process>> Ml ={{}, {}, {},{},{},{}};
+  std::vector<std::vector<Process>> Ml ={{}, {}, {},{},{},{}};
   for(auto &&i:listOfProcess){
     Ml.at(i.getPriority()).push_back(i);
   }
+  //Aplicando PSLS
+  for(auto &&i:Ml){
+   auto aux = this->PSLS(i);
+   i.assign(aux.begin(),aux.end());
+  }
   std::list<Process> mergedList;
-  std::for_each(Ml.rbegin(),Ml.rend(),[&mergedList](std::list<Process> list) mutable {
+  std::for_each(Ml.rbegin(),Ml.rend(),[&mergedList](std::vector<Process> vec) mutable {
+    std::list<Process> list{vec.begin(),vec.end()};
       mergedList.splice(mergedList.end(),list,list.begin(),list.end());
   });
   return mergedList;
+}
+// Pseudo Lottery Scheduling 
+// Apenas rearranja de acordo com um shuffle alimentado por um seed
+// nao e exatamente o mesmo funcionamento do Lottery, mas acredito que isso basta para criar um
+// ruido dentro de cada lista da politica MLQ
+std::list<Process> Escalonador::PSLS(std::vector<Process> &listOfProcess){
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+  shuffle (listOfProcess.begin(), listOfProcess.end(), std::default_random_engine(seed));
+  return std::list<Process>{listOfProcess.begin(),listOfProcess.end()};
 }
