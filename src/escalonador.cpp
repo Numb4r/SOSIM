@@ -7,7 +7,7 @@
 #include <random>
 
 Escalonador::Escalonador(enum schedulerPolicy policy) : policy(policy) {
-  srand(policy);
+  srand(4);
 }
 enum schedulerPolicy Escalonador::getPolicy() const { return this->policy; }
 void Escalonador::applyPolicy(std::list<Process> &listOfProcess) {
