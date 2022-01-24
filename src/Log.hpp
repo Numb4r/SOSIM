@@ -8,7 +8,7 @@
 #include <sstream>
 #include <string>
 namespace logps {
-enum schedulerPolicy { FIFO };
+enum schedulerPolicy { FIFO, LRU ,MLQ};
 enum priorities { realtime, high, medium, low, zero };
 enum resources { cpu, ram, disk };
 
@@ -55,7 +55,10 @@ class Log {
   logps::schedulerPolicy policy;
   std::map<int, std::vector<Logps>> mapPs;
   std::map<logps::schedulerPolicy, std::string> tPolicy = {
-      {logps::schedulerPolicy::FIFO, "FIFO"}};
+      {logps::schedulerPolicy::FIFO, "FIFO"},
+      {logps::schedulerPolicy::LRU,  "LRU"},
+      {logps::schedulerPolicy::MLQ,  "MLQ"}
+      };
 
 public:
   void addLog(int pid, Logps ps) {
