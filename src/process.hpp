@@ -34,6 +34,7 @@ public:
   int getQuantum() const;
   int getCycles() const;
   int getMaxQuantum() const;
+  enum states getState() const;
   bool isProcessTerminated() const;
   void decreasePriority();
 };

@@ -2,12 +2,12 @@
 Process::Process(const int pid, const int cycles, const int maxQuantum,
                  enum resources initBound, enum priorities priority)
     : pid(pid), cycles(cycles), maxQuantum(maxQuantum), quantum(maxQuantum),
-      resourceConsumed(initBound), priority(priority), timestamp(0) {}
+      resourceConsumed(initBound), priority(priority), timestamp(0) ,state(states::criado){}
 Process::Process(const int pid, const int cycles, const int maxQuantum,
                  enum resources initBound, enum priorities priority,
                  const int timestamp)
     : pid(pid), cycles(cycles), maxQuantum(maxQuantum), quantum(maxQuantum),
-      resourceConsumed(initBound), priority(priority), timestamp(timestamp) {}
+      resourceConsumed(initBound), priority(priority), timestamp(timestamp),state(states::criado) {}
 
 void Process::changeState(enum ::states state) { this->state = state; }
 void Process::changePriority(const enum ::priorities priority) {
@@ -35,6 +35,9 @@ void Process::makeCycle(const int timestamp, const int quantumReceive) {
 }
 enum resources Process::getResourceConsumed() const {
   return this->resourceConsumed;
+}
+enum states Process::getState() const{
+  return this->state;
 }
 int Process::getPID() const { return this->pid; }
 int Process::getQuantum() const { return this->quantum; }
