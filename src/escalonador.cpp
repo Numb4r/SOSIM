@@ -38,7 +38,8 @@ void Escalonador::makeCycle(std::list<Process> &listProcess, Log &log) {
   int secondsIO{};
   int timestamp{};
   for (Process &ps : listProcess) {
-    if (!ps.isProcessTerminated()) {
+    std::cout <<"PROCESSO "<< ps.getPID()<<" ESTADO: "<<ps.getState()<<"\n";
+    if (!ps.isProcessTerminated() && ps.getState() == states::pronto) {
       printf("Consumindo ");
       secondsIO = 0;
       if (ps.getResourceConsumed() == resources::ram ||
@@ -77,13 +78,20 @@ void Escalonador::makeCycle(std::list<Process> &listProcess, Log &log) {
 }
 
 //  Scheduling Policy
+
+void changeCreatetoReady(std::vector<Process> &listOfProcess){
+  for (auto &&i : listOfProcess)
+    if(i.getState()== states::criado) i.changeState(states::pronto);
+}
 // FIFO Nao faz nada eu acho (y)
 std::list<Process> Escalonador::FIFO(std::vector<Process> &listOfProcess) {
+  changeCreatetoReady(listOfProcess);
   return std::list<Process>{std::make_move_iterator(listOfProcess.begin()),
                             std::make_move_iterator(listOfProcess.end())};
 }
 // Sort de acordo com o com menor numero de ciclos
 std::list<Process> Escalonador::LRU(std::vector<Process> &listOfProcess){
+  changeCreatetoReady(listOfProcess);
   std::sort(listOfProcess.begin(),listOfProcess.end(),[](Process a,Process b){
      return  a.getCycles() < b.getCycles();
   });
