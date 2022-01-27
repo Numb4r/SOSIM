@@ -3,8 +3,9 @@
 #include <algorithm>
 #include <chrono>
 #include <iostream> //TODO: Retirar prints de debug
-#include <thread>
 #include <random>
+#include <thread>
+#include <vector>
 
 Escalonador::Escalonador(enum schedulerPolicy policy) : policy(policy) {
   srand(4);
@@ -24,21 +25,14 @@ void Escalonador::applyPolicy(std::list<Process> &listOfProcess) {
   case schedulerPolicy::MLQ:
     listOfProcess = this->MLQ(arrayP);
     break;
-  case schedulerPolicy::PSLS:
-    listOfProcess = this->PSLS(arrayP);
-    break;
   }
-  
 }
-// TODO: Consumir timestamp. Verificar se o uso do Quantum esta de forma correta
-// TODO: Criar classe/funcao de Log para fazer output em um json
 void Escalonador::makeCycle(std::list<Process> &listProcess, Log &log) {
   printf("Making cycle\n");
   int seconds{};
   int secondsIO{};
   int timestamp{};
   for (Process &ps : listProcess) {
-    std::cout <<"PROCESSO "<< ps.getPID()<<" ESTADO: "<<ps.getState()<<"\n";
     if (!ps.isProcessTerminated() && ps.getState() == states::pronto) {
       printf("Consumindo ");
       secondsIO = 0;
@@ -76,12 +70,15 @@ void Escalonador::makeCycle(std::list<Process> &listProcess, Log &log) {
     }
   }
 }
+// ---------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------- Scheduling Policy
+// ----------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------
 
-//  Scheduling Policy
-
-void changeCreatetoReady(std::vector<Process> &listOfProcess){
+void changeCreatetoReady(std::vector<Process> &listOfProcess) {
   for (auto &&i : listOfProcess)
-    if(i.getState()== states::criado) i.changeState(states::pronto);
+    if (i.getState() == states::criado)
+      i.changeState(states::pronto);
 }
 // FIFO Nao faz nada eu acho (y)
 std::list<Process> Escalonador::FIFO(std::vector<Process> &listOfProcess) {
@@ -90,37 +87,83 @@ std::list<Process> Escalonador::FIFO(std::vector<Process> &listOfProcess) {
                             std::make_move_iterator(listOfProcess.end())};
 }
 // Sort de acordo com o com menor numero de ciclos
-std::list<Process> Escalonador::LRU(std::vector<Process> &listOfProcess){
+std::list<Process> Escalonador::LRU(std::vector<Process> &listOfProcess) {
   changeCreatetoReady(listOfProcess);
-  std::sort(listOfProcess.begin(),listOfProcess.end(),[](Process a,Process b){
-     return  a.getCycles() < b.getCycles();
-  });
-  return std::list<Process>{listOfProcess.begin(),listOfProcess.end()};
+  std::sort(listOfProcess.begin(), listOfProcess.end(),
+            [](Process a, Process b) { return a.getCycles() < b.getCycles(); });
+  return std::list<Process>{listOfProcess.begin(), listOfProcess.end()};
 }
-//TODO: Implementar loteria
-std::list<Process> Escalonador::MLQ(std::vector<Process> &listOfProcess){
-  std::vector<std::vector<Process>> Ml ={{}, {}, {},{},{},{}};
-  for(auto &&i:listOfProcess){
-    Ml.at(i.getPriority()).push_back(i);
+// funcoes auxiliares a loteria
+static std::vector<int> tickets;
+void redistributeTickets(std::vector<Process> &listOfProcess) {
+  // Cicla por todos os processos procurando por aqueles com estado pronto e que
+  // completaram um ciclo. Se tiver com estado pronto, e removido todas
+  // os tickets ja dados para eles.
+  for (auto &&i : listOfProcess) {
+    if (i.getState() == states::pronto && i.isAlreadyCycled()) {
+      (void)std::remove(tickets.begin(), tickets.end(), i.getPID());
+    } else {
+      // calculo para redistribuicao de tickets
+      int amountTicketsReceive =
+          (4 - i.getPriority()) * (5 * i.getPriority() + 1);
+      for (int j = 0; j < amountTicketsReceive; j++)
+        tickets.push_back(i.getPID());
+    }
   }
-  //Aplicando PSLS
-  for(auto &&i:Ml){
-   auto aux = this->PSLS(i);
-   i.assign(aux.begin(),aux.end());
-  }
-  std::list<Process> mergedList;
-  std::for_each(Ml.rbegin(),Ml.rend(),[&mergedList](std::vector<Process> vec) mutable {
-    std::list<Process> list{vec.begin(),vec.end()};
-      mergedList.splice(mergedList.end(),list,list.begin(),list.end());
-  });
-  return mergedList;
 }
-// Pseudo Lottery Scheduling 
-// Apenas rearranja de acordo com um shuffle alimentado por um seed
-// nao e exatamente o mesmo funcionamento do Lottery, mas acredito que isso basta para criar um
-// ruido dentro de cada lista da politica MLQ
-std::list<Process> Escalonador::PSLS(std::vector<Process> &listOfProcess){
-  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-  shuffle (listOfProcess.begin(), listOfProcess.end(), std::default_random_engine(seed));
-  return std::list<Process>{listOfProcess.begin(),listOfProcess.end()};
+std::list<Process> applyLottery(std::vector<Process> &listOfProcess) {
+  // Loteria aplicada na ultima fila do escalonador MLQ
+  int pidSelected =
+      tickets.at(rand() % tickets.size()); // pid selecionado para execucao
+  for (auto &&i : listOfProcess) {
+    if (i.getPID() != pidSelected) {
+      i.changeState(states::esperando);
+    } else {
+      i.changeState(states::pronto);
+    }
+  }
+  redistributeTickets(listOfProcess);
+  return std::list<Process>{listOfProcess.begin(), listOfProcess.end()};
+}
+std::list<Process> Escalonador::MLQ(std::vector<Process> &listOfProcess) {
+  static int indexOfPriority = 4;
+  if (indexOfPriority > 0) {
+    // Separacao por prioridade
+    std::vector<std::vector<Process>> Ml = {{}, {}, {}, {}, {}, {}};
+    for (auto &&i : listOfProcess) {
+      Ml.at(i.getPriority()).push_back(i);
+    }
+    // Checagem se a fila da prioridade atual nao esta vazia, se estiver descer
+    // a prioridade
+    while (Ml.at(indexOfPriority).empty() && indexOfPriority >= 0) {
+      indexOfPriority--;
+    }
+    // Primeira vez que a prioridade cai para 0. Caso nao fizesse esse call, a
+    // primeira vez que a prioridade descesse pra 0 a fila iria rodar em FIFO
+    if (indexOfPriority == 0)
+      return applyLottery(listOfProcess);
+    // Preparar os processos da prioridade atual para execucao. Todos os
+    // processos de uma prioridade abaixo tem seu estado trocado para evitar
+    // execucoes de processos que sofreram rebaixamento
+    for (auto &&i : Ml.at(indexOfPriority)) {
+      i.changeState(states::pronto);
+    }
+    for (auto &&i : Ml.at(indexOfPriority - 1)) {
+      i.changeState(states::esperando);
+    }
+
+    // redistribuicao de tickets e juncao das filas
+    redistributeTickets(listOfProcess);
+    std::list<Process> mergedList;
+    std::for_each(Ml.rbegin(), Ml.rend(),
+                  [&mergedList](std::vector<Process> vec) mutable {
+                    std::list<Process> list{vec.begin(), vec.end()};
+                    mergedList.splice(mergedList.end(), list, list.begin(),
+                                      list.end());
+                  });
+    return mergedList;
+
+  } else {
+    return applyLottery(listOfProcess);
+  }
 }
