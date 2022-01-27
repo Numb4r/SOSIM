@@ -42,6 +42,8 @@ enum resources Process::getResourceConsumed() const {
 }
 enum states Process::getState() const { return this->state; }
 int Process::getPID() const { return this->pid; }
+bool Process::isAlreadyCycled() const { return this->isCycled; }
+bool Process::isInTheMiddleOfCycle() const { return !this->isCycled; }
 int Process::getQuantum() const { return this->quantum; }
 int Process::getMaxQuantum() const { return this->maxQuantum; }
 enum priorities Process::getPriority() const { return this->priority; }
