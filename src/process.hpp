@@ -1,14 +1,21 @@
 #pragma once
+#include <map>
 #include <queue>
+#include <string>
 enum states { criado, pronto, execucao, bloqueado, finalizado, esperando };
 enum priorities { zero, low, medium, high, realtime };
 enum resources { cpu, ram, disk };
+const std::map<states, std::string> stateToString = {
+    {criado, "criado"},         {pronto, "pronto"},
+    {execucao, "execucao"},     {bloqueado, "bloqueado"},
+    {finalizado, "finalizado"}, {esperando, "esperando"}};
 class Process {
   int pid;
   int timestamp;
   int quantum;
   int cycles;
   int maxQuantum;
+  bool isCycled;
   resources resourceConsumed;
   enum ::priorities priority;
   enum ::states state;

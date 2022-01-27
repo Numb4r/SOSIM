@@ -2,12 +2,14 @@
 Process::Process(const int pid, const int cycles, const int maxQuantum,
                  enum resources initBound, enum priorities priority)
     : pid(pid), cycles(cycles), maxQuantum(maxQuantum), quantum(maxQuantum),
-      resourceConsumed(initBound), priority(priority), timestamp(0) ,state(states::criado){}
+      resourceConsumed(initBound), priority(priority), timestamp(0),
+      state(states::criado) {}
 Process::Process(const int pid, const int cycles, const int maxQuantum,
                  enum resources initBound, enum priorities priority,
                  const int timestamp)
     : pid(pid), cycles(cycles), maxQuantum(maxQuantum), quantum(maxQuantum),
-      resourceConsumed(initBound), priority(priority), timestamp(timestamp),state(states::criado) {}
+      resourceConsumed(initBound), priority(priority), timestamp(timestamp),
+      state(states::criado) {}
 
 void Process::changeState(enum ::states state) { this->state = state; }
 void Process::changePriority(const enum ::priorities priority) {
@@ -23,7 +25,9 @@ void Process::makeCycle(const int timestamp, const int quantumReceive) {
   if (!this->isProcessTerminated()) {
     this->quantum -= quantumReceive;
     this->timestamp += timestamp;
+    this->isCycled = false;
     if (this->quantum == 0) {
+      this->isCycled = true;
       this->cycles--;
       quantum = maxQuantum;
       this->decreasePriority();
@@ -36,9 +40,7 @@ void Process::makeCycle(const int timestamp, const int quantumReceive) {
 enum resources Process::getResourceConsumed() const {
   return this->resourceConsumed;
 }
-enum states Process::getState() const{
-  return this->state;
-}
+enum states Process::getState() const { return this->state; }
 int Process::getPID() const { return this->pid; }
 int Process::getQuantum() const { return this->quantum; }
 int Process::getMaxQuantum() const { return this->maxQuantum; }
@@ -48,6 +50,7 @@ int Process::getCycles() const { return this->cycles; }
 bool Process::isProcessTerminated() const {
   return this->state == states::finalizado;
 }
-void Process::decreasePriority(){
-  this->priority = static_cast<priorities>((this->priority > 0 ? this->priority-1 : 0 ));
+void Process::decreasePriority() {
+  this->priority =
+      static_cast<priorities>((this->priority > 0 ? this->priority - 1 : 0));
 }
