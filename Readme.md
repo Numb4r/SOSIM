@@ -13,8 +13,10 @@ make run
 - queueschell:    Detalha quais processos estão sendo gerenciados pelo sistema.
 - execute:    Executa a fila de processos definida.
 - kill -9:    Finaliza a execução do sistema operacional.
-- stop:       Interrompe e execucao do sistema");
+- stop:       Interrompe e execucao do sistema
 - export ps:  Exporta informacoes sobre os processos
 
 Scheduling Policy code
 - **[0]** FIFO
+- **[1]** LRU
+- **[2]** MLQ 
