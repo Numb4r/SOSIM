@@ -1,6 +1,6 @@
 #pragma once
 #include <queue>
-enum states { criado, pronto, execucao, bloqueado, finalizado };
+enum states { criado, pronto, execucao, bloqueado, finalizado, esperando };
 enum priorities { zero, low, medium, high, realtime };
 enum resources { cpu, ram, disk };
 class Process {
