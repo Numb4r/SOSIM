@@ -65,7 +65,9 @@ void Escalonador::makeCycle(std::list<Process> &listProcess, Log &log) {
       log.addLog(ps.getPID(),
                  {timestamp, (seconds + secondsIO), ps.getCycles(), seconds,
                   ps.getResourceConsumed(), ps.getPriority()});
-      ps.changeResourceConsumed((rand() % 3));
+      if (ps.isProcessTerminated()) {
+        ps.changeResourceConsumed((rand() % 3));
+      }
       ps.makeCycle(timestamp, seconds);
     }
   }
