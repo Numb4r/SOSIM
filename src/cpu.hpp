@@ -2,21 +2,23 @@
 #include "process.hpp"
 #include <string>
 #include <vector>
-class core {
+class Core {
 public:
   int ncore;
-  Process ps;
-  Process operator->() { return ps; }
-  core(int core, Process ps) : ps(ps), ncore(core) {}
+  Process *ps;
+  int timePassed = 0;
+  // Process operator->() { return ps; }
+  Core(int core, Process *ps) : ps(ps), ncore(core) {}
+  Core(int ncore) : ncore(ncore), ps(nullptr) {}
 };
 class CPU {
   short numCores;
 
 public:
-  std::vector<core> cores;
+  std::vector<Core> cores;
   CPU(const short numCores);
   CPU() = default;
   std::string snapshot();
   void reset();
-  void loadPs(Process ps);
+  void loadPs(Process &ps);
 };
