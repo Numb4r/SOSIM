@@ -10,7 +10,8 @@ Kernel::Kernel(const char *fileConfig, const char *fileProcessPath)
 
   nlohmann::json config = Bootloader().boot(fileConfig);
   this->cpu = CPU(config["cores"]);
-  this->ram = RAM(config["memsize"]);
+  this->ram = RAM(config["memsize"], config["pagsize"]);
+  this->disk = Disk();
   this->escalonador = Escalonador(config["policy"]);
   this->log = Log(config["policy"]);
   nlohmann::json ps = Bootloader().boot(fileProcessPath);
@@ -41,19 +42,19 @@ void Kernel::addProcessToList(nlohmann::basic_json<> processInfo) {
 }
 void Kernel::executeSystem() {
   this->isRunning = true;
-  printf("Running\n");
+  // printf("Running\n");
   while (this->isRunning) {
     if (this->listProcess.empty() || this->listProcess.size() <= 0) {
       this->isRunning = false;
       printf("Emtpy list");
     } else {
       escalonador.applyPolicy(this->listProcess);
-      escalonador.makeCycle(this->listProcess, this->log);
+      escalonador.makeCycle(cpu, ram, disk, this->listProcess, this->log);
     }
     std::vector<Process> arrayP{listProcess.begin(), listProcess.end()};
     for (unsigned long i = 0; i < arrayP.size(); i++) {
       if (arrayP.at(i).isProcessTerminated()) {
-        printf("erasing %d", arrayP.at(i).getPID());
+        // printf("erasing %d", arrayP.at(i).getPID());
         this->finishedProcess.push_back(arrayP.at(i));
         arrayP.erase(arrayP.begin() + i);
       }
