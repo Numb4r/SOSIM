@@ -12,7 +12,7 @@ Escalonador::Escalonador(enum schedulerPolicy policy) : policy(policy) {
 }
 enum schedulerPolicy Escalonador::getPolicy() const { return this->policy; }
 void Escalonador::applyPolicy(std::list<Process> &listOfProcess) {
-  printf("Applying policy:\n");
+  // printf("Applying policy:\n");
   std::vector<Process> arrayP{std::make_move_iterator(listOfProcess.begin()),
                               std::make_move_iterator(listOfProcess.end())};
   switch (this->policy) {
@@ -27,48 +27,77 @@ void Escalonador::applyPolicy(std::list<Process> &listOfProcess) {
     break;
   }
 }
-void Escalonador::makeCycle(std::list<Process> &listProcess, Log &log) {
-  printf("Making cycle\n");
+void Escalonador::makeCycle(CPU &cpu, RAM &ram, Disk &disk,
+                            std::list<Process> &listProcess, Log &log) {
+  // printf("Making cycle\n");
   int seconds{};
   int secondsIO{};
   int timestamp{};
   for (Process &ps : listProcess) {
-    if (!ps.isProcessTerminated() && ps.getState() == states::pronto) {
-      printf("Consumindo ");
+    if (!ps.isProcessTerminated() && (ps.getState() == states::pronto ||
+                                      ps.getState() == states::bloqueado)) {
+      // printf("Consumindo ");
       secondsIO = 0;
       if (ps.getResourceConsumed() == resources::ram ||
           ps.getResourceConsumed() == resources::disk) {
-        ps.changeState(states::bloqueado);
         secondsIO = rand() % 4 + 1;
-        printf("%s stopping for %d seconds\n",
-               (ps.getResourceConsumed() == resources::ram ? "ram" : "disk"),
-               secondsIO);
         std::this_thread::sleep_for(std::chrono::seconds(secondsIO));
-        ps.changeState(states::pronto);
         timestamp += secondsIO;
-      } else {
-        printf("cpu\n");
+        if (ps.getResourceConsumed() == resources::ram &&
+            !ram.itsInMemory(ps.getPID())) {
+          bool isAllocated = ram.loadPs(ps, 8 + rand() % 12);
+          if (!isAllocated) {
+            ps.changeState(states::bloqueado);
+            printf("Memoria nao alocada para o processo %d\n", ps.getPID());
+            if (blockPsMap.find(ps.getPID()) == blockPsMap.end()) {
+              blockPsMap.insert({ps.getPID(), 1});
+            } else {
+              blockPsMap.at(ps.getPID()) += 1;
+
+              printf("Processo %d em espera %d \n", ps.getPID(),
+                     blockPsMap.at(ps.getPID()));
+              if (blockPsMap.at(ps.getPID()) == 4) {
+                printf("Processo %d inapto\n", ps.getPID());
+                ps.changeState(states::finalizado);
+              }
+            }
+            return;
+          } else {
+            printf("Memoria alocada para o processo %d, removendo processo da "
+                   "lista de bloqueados\n",
+                   ps.getPID());
+            if (ps.getState() == states::bloqueado) {
+              blockPsMap.erase(ps.getPID());
+              ps.changeState(states::pronto);
+            }
+          }
+        }
       }
       ps.changeState(states::execucao);
+      cpu.loadPs(ps);
       seconds = (rand() % ps.getMaxQuantum()) + 1;
       if (ps.getQuantum() - seconds < 0) {
         seconds = ps.getQuantum();
       }
       timestamp += seconds;
-      printf(
-          "PID:%d\t Seconds:%d maxQuantum:%d quantumAtual:%d\t timestamp:%d\t  "
-          "ciclosRestantes: %d\n ",
-          ps.getPID(), seconds, ps.getMaxQuantum(), ps.getQuantum(), timestamp,
-          ps.getCycles());
+      // printf(
+      //     "PID:%d\t Seconds:%d maxQuantum:%d quantumAtual:%d\t timestamp:%d\t
+      //     " "ciclosRestantes: %d\n ", ps.getPID(), seconds,
+      //     ps.getMaxQuantum(), ps.getQuantum(), timestamp, ps.getCycles());
       std::this_thread::sleep_for(std::chrono::seconds(seconds));
       ps.changeState(states::pronto);
+      ps.makeCycle(timestamp, seconds);
       log.addLog(ps.getPID(),
                  {timestamp, (seconds + secondsIO), ps.getCycles(), seconds,
                   ps.getResourceConsumed(), ps.getPriority()});
+      if (ps.isAlreadyCycled() && ram.itsInMemory(ps.getPID())) {
+        printf("Processo %d terminou ciclo,liberando memoria\n", ps.getPID());
+        ram.unloadPs(ps);
+        ps.changeState(states::pronto);
+      }
       if (ps.isProcessTerminated()) {
         ps.changeResourceConsumed((rand() % 3));
       }
-      ps.makeCycle(timestamp, seconds);
     }
   }
 }
