@@ -1,5 +1,6 @@
 {
     "cores": 1,
-    "memsize": 5,
-    "policy": 0
+    "memsize": 100,
+    "pagsize":100,
+    "policy": 2
 }
