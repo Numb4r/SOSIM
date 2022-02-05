@@ -1,22 +1,28 @@
 #pragma once
 #include "process.hpp"
 #include <string>
+#include <unordered_map>
 #include <vector>
-class block {
+class Block {
 public:
   int address;
-  Process ps;
-  Process operator->() { return ps; }
-  block(int address, Process ps) : address(address), ps(ps) {}
+  Process *ps;
+  // Process operator->() { return ps; }
+  Block(int address) : address(address), ps(nullptr) {}
+  Block() = default;
 };
 class RAM {
   int memSize;
-  std::vector<block> memory;
+  int pagSize;
+  int qntPagAlloc{};
+  std::vector<Block> memory;
+  std::unordered_map<int, std::vector<int>> bitMap;
 
 public:
   void reset();
-  RAM(const int memSize);
+  RAM(const int memSize, const int pagSize);
   RAM() = default;
   std::string snapshot();
-  void loadPs(Process ps);
+  bool loadPs(Process &ps, int blockRequired);
+  void unloadPs(Process &ps);
 };

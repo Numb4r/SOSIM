@@ -29,16 +29,16 @@ void Shell::help() {
 void Shell::meminfo() {
   nlohmann::json j = json::parse(kernel->ssMemory());
   int memSize = j["memorySize"];
+  int pagSize = j["pageSize"];
   auto vec = j["process"];
 
   printf("[");
-  std::vector<int> address;
+  int qntPagAlloc{};
   for (auto &&i : vec) {
-    address.push_back(i["adr"]);
+    qntPagAlloc++;
   }
-
-  for (int i = 0; i < memSize; i++) {
-    if (std::find(address.begin(), address.end(), i) != address.end())
+  for (int i = 0; i < memSize; i += pagSize) {
+    if (i < qntPagAlloc)
       printf("///////");
     else
       printf("\t");
