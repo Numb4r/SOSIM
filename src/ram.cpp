@@ -35,11 +35,13 @@ std::string RAM::snapshot() {
   return ss.str();
 }
 void RAM::unloadPs(Process &ps) {
+  if (bitMap.find(ps.getPID()) == bitMap.end())
+    return;
   std::vector<int> posMem = bitMap.find(ps.getPID())->second;
-  printf("Unload %d\n", ps.getPID());
+  // printf("Unload %d\n", ps.getPID());
   for (auto &&i : posMem) {
     for (int j = i; j < (i + pagSize); j++) {
-      printf("Removing from %d\n", j);
+      // printf("Removing from %d\n", j);
       this->memory[j].ps = nullptr;
     }
     this->qntPagAlloc--;
