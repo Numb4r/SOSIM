@@ -23,6 +23,7 @@ public:
   RAM(const int memSize, const int pagSize);
   RAM() = default;
   std::string snapshot();
+  bool itsInMemory(int pid) const;
   bool loadPs(Process &ps, int blockRequired);
   void unloadPs(Process &ps);
 };

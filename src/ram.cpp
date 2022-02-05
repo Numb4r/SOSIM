@@ -49,7 +49,9 @@ void RAM::unloadPs(Process &ps) {
 
   bitMap.erase(ps.getPID());
 }
-
+bool RAM::itsInMemory(int pid) const {
+  return this->bitMap.find(pid) != this->bitMap.end();
+}
 bool RAM::loadPs(Process &ps, int blockRequired) {
   std::vector<int> pagEmpty;
   int i = 0;
