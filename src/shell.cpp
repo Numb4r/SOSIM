@@ -1,18 +1,22 @@
 #include "shell.hpp"
 #include "json.hpp"
-#include <algorithm>
-#include <curses.h>
 #include <exception>
-#include <fstream>
-#include <functional>
 #include <iostream>
-#include <stdio.h>
+#include <map>
 #include <string>
 #include <thread>
 #include <vector>
 Shell::Shell(Kernel *kernel) : kernel(kernel) {}
 // TODO: Reescrever shell para uma forma mais dinamica, facilitando a criacao de
 // comandos
+const std::map<int, std::string> mapToPriorities = {
+    {4, "realtime"}, {3, "high"}, {2, "medium"}, {1, "low"}, {0, "zero"}};
+const std::map<int, std::string> mapToState = {
+    {0, "criado"},    {1, "pronto"},     {2, "execucao"},
+    {3, "bloqueado"}, {4, "finalizado"}, {5, "esperando"}};
+const std::map<int, std::string> mapToResources = {
+    {0, "CPU"}, {1, "RAM"}, {2, "DISK"}};
+
 void Shell::kill() { exit(0); }
 void Shell::stopSystem() { this->kernel->stopSystem(); }
 
@@ -52,9 +56,19 @@ void Shell::meminfo() {
   std::vector<std::string> info = {"pid", "adr", "pr", "ts", "qt"};
   printf("{");
   for (auto &&i : info) {
-    printf("\n%s : ", i.c_str());
+    std::cout << "\n" << std::setw(3) << i << ": ";
     for (auto &&j : vec) {
-      std::cout << j[i] << "\t";
+      if (std::strcmp(i.c_str(), "adr") == 0) {
+        std::string s = j[i];
+        std::cout << std::setw(8) << s;
+      } else {
+        int s = j[i];
+        if (std::strcmp(i.c_str(), "pr") == 0) {
+          std::cout << std::setw(5) << mapToPriorities.at(s);
+        } else {
+          std::cout << std::setw(4) << s;
+        }
+      }
     }
   }
   printf("\n}\n");
@@ -79,25 +93,49 @@ void Shell::cpuinfo() {
   std::vector<std::string> info = {"pid", "pr", "ts", "qt"};
   printf("\n{");
   for (auto &&i : info) {
-    printf("\n%s : ", i.c_str());
+    std::cout << "\n" << std::setw(3) << i << ": ";
     for (auto &&j : vec) {
-      std::cout << j[i] << "\t";
+      int s = j[i];
+      if (std::strcmp(i.c_str(), "pr") == 0) {
+        std::cout << std::setw(5) << mapToPriorities.at(s);
+      } else {
+        std::cout << std::setw(4) << s;
+      }
     }
   }
   printf("\n}\n");
 }
 void Shell::queueschell() {
   nlohmann::json json = json::parse(kernel->ssQueuePs());
-  std::vector<std::string> info = {"pid", "pr",  "ts", "qt",
-                                   "rs",  "cly", "st", "m_qt"};
+  std::vector<std::string> info = {"pid", "pr", "ts", "rs",
+                                   "cly", "st", "qt", "m_qt"};
+  // std::cout.width(5);
   auto process = json["process"];
   for (auto &&i : info) {
-    printf("%s ", i.c_str());
+    if (std::strcmp(i.c_str(), "pr") == 0) {
+      std::cout << std::setw(10);
+    } else if (std::strcmp(i.c_str(), "rs") == 0) {
+      std::cout << std::setw(5);
+    } else if (std::strcmp(i.c_str(), "st") == 0) {
+      std::cout << std::setw(10);
+    } else {
+      std::cout << std::setw(5);
+    }
+    std::cout << i;
   }
   printf("\n");
   for (auto &&i : process) {
     for (auto &&j : info) {
-      std::cout << i[j] << " ";
+      int s = i[j];
+      if (std::strcmp(j.c_str(), "pr") == 0) {
+        std::cout << std::setw(10) << mapToPriorities.at(s);
+      } else if (std::strcmp(j.c_str(), "rs") == 0) {
+        std::cout << std::setw(5) << mapToResources.at(s);
+      } else if (std::strcmp(j.c_str(), "st") == 0) {
+        std::cout << std::setw(10) << mapToState.at(s);
+      } else {
+        std::cout << std::setw(5) << s;
+      }
     }
     printf("\n");
   }
