@@ -1,6 +1,6 @@
 {
     "cores": 1,
     "memsize": 100,
-    "pagsize":100,
+    "pagsize":14,
     "policy": 2
 }
