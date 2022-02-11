@@ -30,6 +30,7 @@ public:
   void addProcessToList(nlohmann::basic_json<> processInfo);
   std::string ssCPU();
   std::string ssMemory();
+  std::string ssQueuePs();
   void exportPs();
   void reboot();
 };

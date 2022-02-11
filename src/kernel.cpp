@@ -4,6 +4,7 @@
 #include "process.hpp"
 #include <chrono>
 #include <iostream>
+#include <sstream>
 #include <thread>
 Kernel::Kernel(const char *fileConfig, const char *fileProcessPath)
     : isRunning(false), fileLoadPs(fileProcessPath) {
@@ -61,4 +62,24 @@ void Kernel::executeSystem() {
     }
     listProcess = std::list<Process>{arrayP.begin(), arrayP.end()};
   }
+}
+std::string Kernel::ssQueuePs() {
+  std::stringstream ss;
+  ss << "{";
+  ss << R"("numPs":)" << this->listProcess.size() << R"(,"process":[)";
+  int comma = 0;
+  for (auto &&i : this->listProcess) {
+    ss << "{";
+    ss << R"("pid":)" << i.getPID() << R"(,"pr":)" << i.getPriority()
+       << R"(,"ts":)" << i.getTimestamp() << R"(,"qt":)" << i.getQuantum()
+       << R"(,"rs":)" << i.getResourceConsumed() << R"(,"cly":)"
+       << i.getCycles() << R"(,"st":)" << i.getState() << R"(,"m_qt":)"
+       << i.getQuantum();
+    ss << "}";
+    if (comma + 1 < this->listProcess.size())
+      ss << ",";
+    comma++;
+  }
+  ss << "]}";
+  return ss.str();
 }
