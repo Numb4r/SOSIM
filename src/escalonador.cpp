@@ -48,24 +48,25 @@ void Escalonador::makeCycle(CPU &cpu, RAM &ram, Disk &disk,
           bool isAllocated = ram.loadPs(ps, 8 + rand() % 12);
           if (!isAllocated) {
             ps.changeState(states::bloqueado);
-            printf("Memoria nao alocada para o processo %d\n", ps.getPID());
+            // printf("Memoria nao alocada para o processo %d\n", ps.getPID());
             if (blockPsMap.find(ps.getPID()) == blockPsMap.end()) {
               blockPsMap.insert({ps.getPID(), 1});
             } else {
               blockPsMap.at(ps.getPID()) += 1;
 
-              printf("Processo %d em espera %d \n", ps.getPID(),
-                     blockPsMap.at(ps.getPID()));
+              // printf("Processo %d em espera %d \n", ps.getPID(),
+              //        blockPsMap.at(ps.getPID()));
               if (blockPsMap.at(ps.getPID()) == 4) {
-                printf("Processo %d inapto\n", ps.getPID());
+                // printf("Processo %d inapto\n", ps.getPID());
                 ps.changeState(states::finalizado);
               }
             }
             return;
           } else {
-            printf("Memoria alocada para o processo %d, removendo processo da "
-                   "lista de bloqueados\n",
-                   ps.getPID());
+            // printf("Memoria alocada para o processo %d, removendo processo da
+            // "
+            //        "lista de bloqueados\n",
+            //        ps.getPID());
             if (ps.getState() == states::bloqueado) {
               blockPsMap.erase(ps.getPID());
               ps.changeState(states::pronto);
@@ -85,13 +86,14 @@ void Escalonador::makeCycle(CPU &cpu, RAM &ram, Disk &disk,
       //     " "ciclosRestantes: %d\n ", ps.getPID(), seconds,
       //     ps.getMaxQuantum(), ps.getQuantum(), timestamp, ps.getCycles());
       std::this_thread::sleep_for(std::chrono::seconds(seconds));
-      ps.changeState(states::pronto);
       ps.makeCycle(timestamp, seconds);
+      ps.changeState(states::pronto);
       log.addLog(ps.getPID(),
                  {timestamp, (seconds + secondsIO), ps.getCycles(), seconds,
                   ps.getResourceConsumed(), ps.getPriority()});
       if (ps.isAlreadyCycled() && ram.itsInMemory(ps.getPID())) {
-        printf("Processo %d terminou ciclo,liberando memoria\n", ps.getPID());
+        // printf("Processo %d terminou ciclo,liberando memoria\n",
+        // ps.getPID());
         ram.unloadPs(ps);
         ps.changeState(states::pronto);
       }
