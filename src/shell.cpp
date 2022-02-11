@@ -1,6 +1,7 @@
 #include "shell.hpp"
 #include "json.hpp"
 #include <algorithm>
+#include <curses.h>
 #include <exception>
 #include <fstream>
 #include <functional>
@@ -27,6 +28,7 @@ void Shell::help() {
   printf("export ps:\t Exporta informacoes sobre os processos");
 }
 void Shell::meminfo() {
+
   nlohmann::json j = json::parse(kernel->ssMemory());
   int memSize = j["memorySize"];
   int pagSize = j["pageSize"];
@@ -84,7 +86,22 @@ void Shell::cpuinfo() {
   }
   printf("\n}\n");
 }
-void Shell::queueschell() {}
+void Shell::queueschell() {
+  nlohmann::json json = json::parse(kernel->ssQueuePs());
+  std::vector<std::string> info = {"pid", "pr",  "ts", "qt",
+                                   "rs",  "cly", "st", "m_qt"};
+  auto process = json["process"];
+  for (auto &&i : info) {
+    printf("%s ", i.c_str());
+  }
+  printf("\n");
+  for (auto &&i : process) {
+    for (auto &&j : info) {
+      std::cout << i[j] << " ";
+    }
+    printf("\n");
+  }
+}
 void Shell::execute() {
   std::thread t1(&Kernel::executeSystem, kernel);
   if (t1.joinable()) {
