@@ -40,17 +40,19 @@ void Shell::meminfo() {
 
   printf("[");
   int qntPagAlloc{};
+
   for (auto &&i : vec) {
     qntPagAlloc++;
   }
-  for (int i = 0; i < memSize; i += pagSize) {
+  for (int i = 0; i < (memSize / pagSize); i++) {
     if (i < qntPagAlloc)
       printf("///////");
     else
       printf("\t");
-    if (i + 1 < memSize)
+    if (i + 1 < (memSize / pagSize))
       printf("|");
   }
+
   std::string s;
   printf("]\n");
   std::vector<std::string> info = {"pid", "adr", "pr", "ts", "qt"};
@@ -60,13 +62,13 @@ void Shell::meminfo() {
     for (auto &&j : vec) {
       if (std::strcmp(i.c_str(), "adr") == 0) {
         std::string s = j[i];
-        std::cout << std::setw(8) << s;
+        std::cout << std::setw(10) << s;
       } else {
         int s = j[i];
         if (std::strcmp(i.c_str(), "pr") == 0) {
-          std::cout << std::setw(5) << mapToPriorities.at(s);
+          std::cout << std::setw(10) << mapToPriorities.at(s);
         } else {
-          std::cout << std::setw(4) << s;
+          std::cout << std::setw(10) << s;
         }
       }
     }
